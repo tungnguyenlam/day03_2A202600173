@@ -22,6 +22,32 @@ pip install -r requirements.txt
 
 If you don't want to use OpenAI or Gemini, you can run open-source models (like Phi-3) directly on your CPU using `llama-cpp-python`.
 
+## 🤗 Running with Hugging Face Qwen (Local)
+
+You can also run `Qwen/Qwen2.5-0.5B-Instruct` locally through Transformers.
+
+### 1. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Update `.env`
+```env
+DEFAULT_PROVIDER=huggingface
+HF_MODEL_ID=Qwen/Qwen2.5-0.5B-Instruct
+HF_MAX_NEW_TOKENS=512
+```
+
+### 3. Run chatbot or agent
+```bash
+python run_lab.py chatbot --question "Xin chao"
+python run_lab.py agent --question "Buy 2 iPhones with WINNER, ship to Hanoi. Unit $1000, 0.4kg each. Total?"
+```
+
+Notes:
+- First run downloads model weights from Hugging Face and can take time.
+- CPU inference is supported; CUDA will be used automatically if available.
+
 ### 1. Download the Model
 Download the **Phi-3-mini-4k-instruct-q4.gguf** (approx 2.2GB) from Hugging Face:
 - [Phi-3-mini-4k-instruct-GGUF](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf)
@@ -55,7 +81,7 @@ The code is designed as a **Production Prototype**. It includes:
 
 When you run `compare`, `dalat-compare`, or `benchmark`, the lab now writes:
 
-- `logs/YYYY-MM-DD.log`: low-level event traces
+- `logs/sessions/session-*.log`: low-level event traces, one file per run/session
 - `logs/experiments.jsonl`: one structured record per run
 - `logs/compare_summary.csv`: table-ready metrics (tokens, latency, cost) for chatbot vs agent
 

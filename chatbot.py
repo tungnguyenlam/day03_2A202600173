@@ -26,7 +26,7 @@ def run_chatbot(
     provider: Optional[str] = None,
     system_prompt: Optional[str] = None,
 ) -> str:
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"), override=True)
     llm = create_llm_from_env(provider=provider)
     sys_p = system_prompt if system_prompt is not None else BASELINE_SYSTEM
     out = llm.generate(user_message, system_prompt=sys_p, temperature=0.3)
@@ -40,7 +40,7 @@ def run_chatbot(
 
 
 def main() -> None:
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"), override=True)
     q = " ".join(sys.argv[1:]).strip() if len(sys.argv) > 1 else input("You: ").strip()
     if not q:
         print("Provide a question as an argument or when prompted.")

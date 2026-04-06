@@ -53,15 +53,49 @@ def _bench_cases() -> list[tuple[str, str]]:
     ]
 
 
+def _is_dalat_travel_query(question: str) -> bool:
+    q = (question or "").lower()
+    keywords = [
+        "da lat",
+        "dalat",
+        "đà lạt",
+        "hotel",
+        "khách sạn",
+        "weather",
+        "thời tiết",
+        "thoi tiet",
+    ]
+    return any(k in q for k in keywords)
+
+
 def run_agent(question: str, provider: str | None, prompt_version: str) -> str:
     llm = create_llm_from_env(provider=provider)
-    tools = get_tool_specs()
-    agent = ReActAgent(llm, tools, max_steps=10, prompt_version=prompt_version)
+    if _is_dalat_travel_query(question):
+        tools = get_tool_specs_dalat()
+        if prompt_version == "v1":
+            system_override = build_dalat_system_prompt_v1(tools)
+            pv = "dalat_v1"
+            temp = 0.25
+        else:
+            system_override = build_dalat_system_prompt_v2(tools)
+            pv = "dalat_v2"
+            temp = 0.15
+        agent = ReActAgent(
+            llm,
+            tools,
+            max_steps=12,
+            prompt_version=pv,
+            temperature=temp,
+            system_prompt_override=system_override,
+        )
+    else:
+        tools = get_tool_specs()
+        agent = ReActAgent(llm, tools, max_steps=10, prompt_version=prompt_version)
     return agent.run(question)
 
 
 def cmd_chatbot(args: argparse.Namespace) -> None:
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"), override=True)
     tracker.reset()
     ans = baseline_chatbot.run_chatbot(args.question, provider=args.provider)
     print(ans)
@@ -78,7 +112,7 @@ def cmd_chatbot(args: argparse.Namespace) -> None:
 
 
 def cmd_agent(args: argparse.Namespace) -> None:
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"), override=True)
     tracker.reset()
     ans = run_agent(args.question, args.provider, args.prompt_version)
     print(ans)
@@ -99,7 +133,7 @@ def cmd_agent(args: argparse.Namespace) -> None:
 
 
 def cmd_compare(args: argparse.Namespace) -> None:
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"), override=True)
     print("=== Baseline chatbot (no tools) ===\n")
     tracker.reset()
     b = baseline_chatbot.run_chatbot(args.question, provider=args.provider)
@@ -157,7 +191,7 @@ def cmd_dalat_compare(args: argparse.Namespace) -> None:
     Baseline chatbot vs ReAct Agent v1 (minimal prompt) vs v2 (strict JSON + workflow).
     Uses OpenAI by default when DEFAULT_PROVIDER is unset; set OPENAI_API_KEY in .env.
     """
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"), override=True)
     q = args.question or DALAT_SCENARIO_QUERY_VI
     prov = args.provider or os.getenv("DEFAULT_PROVIDER") or "openai"
 
@@ -252,7 +286,7 @@ def cmd_dalat_compare(args: argparse.Namespace) -> None:
 
 
 def cmd_benchmark(args: argparse.Namespace) -> None:
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"), override=True)
     tracker.reset()
     results = []
     for name, q in _bench_cases():
