@@ -1,8 +1,7 @@
 # Group Report: Lab 3 - Production-Grade Agentic System
 
-- **Team Name**: [Your Team]
-- **Team Members**: [Member 1, Member 2, ...]
-- **Deployment Date**: 2026-04-06
+- **Team Name**: C4
+- **Team Members**: Trần Gia Khánh - 2A202600293, Phạm Trần Thanh Lâm - 2A202600270, Phạm Việt Cường - 2A202600420, Nguyễn Lâm Tùng - 2A202600173, Đặng Tiến Dũng - 2A202600024, Phạm Hữu Hoàng Hiệp - 2A202600415
 
 ---
 
