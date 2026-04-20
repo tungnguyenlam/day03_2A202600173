@@ -14,9 +14,9 @@ def create_llm_from_env(
 ) -> LLMProvider:
     """
     Build an LLMProvider from environment variables.
-    DEFAULT_PROVIDER: openai | google | gemini | local
+    DEFAULT_PROVIDER: openai | google | gemini | local | huggingface
     """
-    load_dotenv()
+    load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env"), override=True)
     p = (provider or os.getenv("DEFAULT_PROVIDER") or "openai").strip().lower()
     if p == "openai":
         m = model or os.getenv("DEFAULT_MODEL", "gpt-4o")
@@ -32,4 +32,11 @@ def create_llm_from_env(
     if p == "local":
         path = os.getenv("LOCAL_MODEL_PATH", "./models/Phi-3-mini-4k-instruct-q4.gguf")
         return LocalProvider(model_path=path)
-    raise ValueError(f"Unknown provider '{p}'. Use openai, google/gemini, or local.")
+    if p in ("huggingface", "hf"):
+        # Lazy import so users without transformers/torch can still use other providers.
+        from src.core.huggingface_provider import HuggingFaceProvider
+
+        m = model or os.getenv("HF_MODEL_ID") or os.getenv("DEFAULT_MODEL", "Qwen/Qwen2.5-0.5B-Instruct")
+        max_new_tokens = int(os.getenv("HF_MAX_NEW_TOKENS", "512"))
+        return HuggingFaceProvider(model_name=m, max_new_tokens=max_new_tokens)
+    raise ValueError(f"Unknown provider '{p}'. Use openai, google/gemini, local, or huggingface.")

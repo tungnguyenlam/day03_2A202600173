@@ -14,6 +14,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
+from src.tools.dalat_dummy_data_tool import get_tool_specs_dummy_data
+
 
 def get_weather(city: str, date: str) -> str:
     c = city.lower()
@@ -81,4 +83,4 @@ def get_tool_specs_dalat() -> List[Dict[str, Any]]:
             "uses_kwargs": True,
             "run": get_hotel_reviews,
         },
-    ]
+    ] + get_tool_specs_dummy_data()
